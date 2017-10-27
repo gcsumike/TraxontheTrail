@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="Style1.css" />
+    <script src="form_input.js"></script>
+
+    <!--<script>
+        function read() {
+            var x, text;
+            // Get the value of the input field with id="numb"
+            x = document.getElementById("title").value;
+            window.alert(x);
+        }
+    </script>-->
+
+</head>
+<body>
+    
+    <div class="w3-container">
+        <header class="w3-header w3-padding w3-teal"><h2>Entry Form</h2></header>
+        <form action="/data" method="post" id="data_entry" class="w3-container w3-padding w3-border">
+            <p><u>Title</u> <input name="title" class="w3-input" style="width: 550px;" /></p>
+
+            <!--<p><button onclick="read()">Click</button>-->
+
+            <p><u>Performer</u> <input name="performer" class="w3-input" style="width: 250px"></p>
+            <p><select name="genre" class="w3-select w3-border" style="width: 150px">
+                          <option value="" disabled selected>Genre</option>
+                          <option value="1">Option 1</option>
+                          <option value="2">Option 2</option>
+                          <option value="3">Option 3</option></select>
+                <button id="plus_genre" class="w3-button w3-circle w3-teal">+</button>
+            </p>
+            <p>
+                <select name="music_type" class="w3-select w3-border" style="width: 150px">
+                    <option value="" disabled selected>Type of Music</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                </select>
+            </p>
+            <p><u>Title of Event</u> <input name="event_title" class="w3-input" style="width: 550px"  /></p>
+            <p><u>Date</u> <input name="date" type="date" class="w3-input" style="width: 200px" /></p>
+            <p><u>Candidate</u><input name="candidate" class="w3-input" style="width: 250px" /></p>
+            <p><select name="event_type" class="w3-select w3-border" style="width: 150px">
+                                        <option value="" disabled selected>Type of Event</option>
+                                        <option value="1">Option 1</option>
+                                        <option value="2">Option 2</option>
+                                        <option value="3">Option 3</option>
+                   </select>
+                <button id="plus_event_type" class="w3-button w3-circle w3-teal">+</button>
+            </p>
+
+            <p><u>City</u> <input name="city" class="w3-input" style="width: 250px"></p>
+            <p><select name="state" class="w3-select" style="width: 250px">
+                                <option value="" disabled selected>State</option>
+                                <option value="al">Alabama</option>
+                                <option value="ga">Georgia</option>
+                                <option value="sc">South Carolina</option>
+                </select>
+                </p>
+            <p><u>ZIP</u> <input name="zip" class="w3-input" style="width: 250px"></p>
+            <p> <button id="links" class="w3-button w3-teal">Add link</button>
+                <button id="links" class="w3-button w3-teal">Remove link</button>
+            </p>
+            <p>
+            <select id="links_list" size="3" class="w3-input w3-border" style="width: 550px; height: 300px;">
+
+            </select>
+            </p>
+            <p>*Add Lyrics File*</p>
+            
+            <input type="submit" value="Enter"/>
+        </form>
+
+        <footer class="w3-footer w3-padding w3-teal"><h2>Entry Form</h2> </footer>
+
+    </div>
+    
+
+
+</body>
