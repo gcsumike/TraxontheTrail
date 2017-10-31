@@ -1,0 +1,113 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Entry Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="w3.css">
+    <!-- https://www.w3schools.com/w3css/4/w3.css  -->
+    <script>
+        // Wait for the page to load first
+        window.onload = function () {
+
+        }
+        $(document).ready(function () {
+
+        });
+        
+
+    </script>
+
+    <style>
+        #genre {
+            width: 150px;
+        }
+        #music_type {
+            width: 150px;
+        }
+        #event_type {
+            width: 150px;
+        }
+
+        #candidate {
+            width: 150px;
+        }
+        #state {
+            width: 150px;
+        }
+        #notes {
+            resize: none;
+            width: 300px;
+            height: 400px;
+        }
+        #review {
+            resize: none;
+            width: 300px;
+            height: 400px;
+        }
+        #lyrics {
+            resize: none;
+            width: 300px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body style="padding: 25px;">
+
+    <header class="w3-header w3-padding w3-card-2 w3-teal w3-border-white w3-bottombar"><h1>Entry Form</h1></header>
+    <div class="w3-bar w3-teal w3-border-black w3-card-2">
+        <a id="mylink3" href="#" class="w3-bar-item w3-button" style="float: right;">Candidates</a>
+    </div>
+    <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border">
+        <p>
+           Official: <input id="official" name="official" type="radio" class="w3-radio" />
+        </p>
+        <p>
+           Song Title: <input id="song_title" name="song_title" type="text" class="w3-text" /> 
+           Performer:<input id="performer" name="performer" type="text" class="w3-text" />
+           Genre: <select id="genre" name="genre" class="w3-select w3-border">
+                    <option>Genre</option>
+                  </select>     
+           Music type: <select id="music_type" name="music_type" class="w3-select w3-border">
+                          <option>Type</option>
+                       </select> 
+        </p> 
+        <p>
+           Event Title: <input id="event_title" name="event_title" type="text" class="w3-text" />        
+           Event Type: <select id="event_type" name="event_type" class="w3-select w3-border">
+                            <option>Type</option>
+                       </select> 
+        </p>
+        <p>
+           Candidate: <select id="candidate" name="candidate" class="w3-select w3-border">
+                         <option>Candidate</option>
+                      </select> 
+        </p>
+        <p>
+           City: <input id="city" name="city" type="text" class="w3-text" /> 
+           State: <select id="state" name="state" class="w3-select w3-border">
+                     <option>State</option>
+                  </select>      
+           Zip: <input id="zip" name="zip" type="text" class="w3-text" /> 
+        </p>
+        <p>
+            Notes: <br />
+
+            <textarea id="notes" name="note" size="4" class="w3-text"></textarea>
+        </p>
+        <p>
+        Review Info: <br />
+            <textarea id="review" name="review" size="3" class="w3-text"></textarea>
+        </p>
+        <p>
+        Lyrics: <br />
+            <textarea id="lyrics" name="lyrics" size="3" class="w3-text"></textarea>
+        </p>
+
+    </form>
+    
+    <footer class="w3-footer w3-card-2 w3-padding w3-teal"><br /> </footer>
+    
+
+</body>
+</html>
