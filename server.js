@@ -2,9 +2,12 @@
 const express = require('express'); //node.js express object 
 const app = express(); //express application object, handles connection requests
 const bodyParser = require('body-parser');
+var squel = require("squel");
 var path = require('path');
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'html')));
 
 //Create the mysql database connection
 var pool = mysql.createPool({
@@ -16,15 +19,17 @@ var pool = mysql.createPool({
     debug: false
 });
 
-
-function handle_database(req, res) {
+function select(req, res) {
     pool.getConnection(function (err, connection) {
         if (err) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         }
         console.log('connected as id ' + connection.threadId);
-        connection.query('SELECT * FROM entry', function (err, rows, fields) {
+
+        var sql = squel.select().from('entry').toString();
+
+        connection.query(sql, function (err, rows, fields) {
             connection.release();
             if (!err) {
                 res.json(rows);
@@ -34,8 +39,18 @@ function handle_database(req, res) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         });
-
     });
+}
+
+function test(req, res) {
+    var obj = req.body;
+    var result = [];
+
+    result.push(obj);
+    var sql = squel.insert()
+        .into('entry')
+        .setFieldsRows(result).toString();
+    res.send(sql);
 }
 
 function Insert(req, res) {
@@ -44,15 +59,25 @@ function Insert(req, res) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         }
+        //get each element from req by name
+        var data = req.body;
+        var arr = [];
+        arr.push(data);
 
-        var item = req.body.title;
+        //var table = 'entry';
+        ////generate insert statement using elements
+        //var sql = "INSERT INTO " + table + " ('" + "')" + ' VALUES ' + "('" + "')";
+
         console.log('connected as id ' + connection.threadId);
-        var sql = "INSERT INTO entry (song) VALUES ('"+ item +"')";
+        // INSERT INTO entry (song, genre) VALUES ('item', 'item2')
+//Change table name when time to
+        var sql = squel.insert()
+            .into('entry')
+            .setFieldsRows(arr).toString();
         connection.query(sql, function (err, result) {
             connection.release();
             if (err) throw err;
-            console.log("1 record inserted");
-            res.send("Inserted!");
+            console.log("Record inserted");
         });
         connection.on('error', function (err) {
             res.json({ "code": 100, "status": "Error in connection database" });
@@ -62,19 +87,19 @@ function Insert(req, res) {
     });
 }
 
-//handle GET request for path "/" 
-app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname + '/testing.html'));
-    res.sendFile(path.join(__dirname + '/w3.css'));
+app.get('/select', function (req, res) {
+    select(req, res);
 });
 
 app.post('/insert', function (req, res) {
     Insert(req, res);
+    res.send("Inserted");
 });
 
-app.post('/select', function (req, res) {
-
+app.post('/test', function (req, res) {
+    test(req, res);
 });
+
 
 //Listen for a connection from browser
 app.listen(3000, function () {

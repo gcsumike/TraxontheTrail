@@ -12,7 +12,15 @@
 
         }
         $(document).ready(function () {
+            $('#getitem').click(function () {
+                $.get("/select", function (data) {
 
+                    console.log(data[0]);
+
+
+                });
+
+            });
         });
         
 
@@ -22,7 +30,7 @@
         #genre {
             width: 150px;
         }
-        #music_type {
+        #musicType {
             width: 150px;
         }
         #event_type {
@@ -53,22 +61,41 @@
     </style>
 </head>
 <body style="padding: 25px;">
+    <!--
+        Output ids:
+            official
+            song
+            performer
+            genre
+            music_type
+            event_title
+            event_type
+            candidate
+            city
+            state
+            zip
+            notes
+            review
+            lyrics
+    -->
+
 
     <header class="w3-header w3-padding w3-card-2 w3-teal w3-border-white w3-bottombar"><h1>Entry Form</h1></header>
+
     <div class="w3-bar w3-teal w3-border-black w3-card-2">
         <a id="mylink3" href="#" class="w3-bar-item w3-button" style="float: right;">Candidates</a>
     </div>
-    <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border">
+    <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border" action="/insert" method="post"><!--change action to post directory wanted in server-->
         <p>
            Official: <input id="official" name="official" type="radio" class="w3-radio" />
         </p>
         <p>
-           Song Title: <input id="song_title" name="song_title" type="text" class="w3-text" /> 
+           Song Title: <input id="song" name="song" type="text" class="w3-text" /> 
            Performer:<input id="performer" name="performer" type="text" class="w3-text" />
            Genre: <select id="genre" name="genre" class="w3-select w3-border">
                     <option>Genre</option>
                   </select>     
-           Music type: <select id="music_type" name="music_type" class="w3-select w3-border">
+           Music type: <select id="musicType" name="musicType" class="w3-select w3-border">
                           <option>Type</option>
                        </select> 
         </p> 
@@ -93,17 +120,17 @@
         <p>
             Notes: <br />
 
-            <textarea id="notes" name="note" size="4" class="w3-text"></textarea>
+            <textarea id="notes" name="notes" size="4" class="w3-text"></textarea>
         </p>
         <p>
         Review Info: <br />
-            <textarea id="review" name="review" size="3" class="w3-text"></textarea>
+            <textarea id="review" name="review" class="w3-text"></textarea>
         </p>
         <p>
         Lyrics: <br />
-            <textarea id="lyrics" name="lyrics" size="3" class="w3-text"></textarea>
+            <textarea id="lyrics" name="lyrics" class="w3-text"></textarea>
         </p>
-
+        <input type="submit" value="Submit" />
     </form>
     
     <footer class="w3-footer w3-card-2 w3-padding w3-teal"><br /> </footer>
