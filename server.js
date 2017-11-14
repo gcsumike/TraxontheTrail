@@ -42,38 +42,23 @@ function select(req, res) {
     });
 }
 
-function test(req, res) {
-    var obj = req.body;
-    var result = [];
-
-    result.push(obj);
-    var sql = squel.insert()
-        .into('entry')
-        .setFieldsRows(result).toString();
-    res.send(sql);
-}
-
 function Insert(req, res) {
     pool.getConnection(function (err, connection) {
         if (err) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         }
-        //get each element from req by name
+        //get each element from req 
         var data = req.body;
         var arr = [];
         arr.push(data);
 
-        //var table = 'entry';
-        ////generate insert statement using elements
-        //var sql = "INSERT INTO " + table + " ('" + "')" + ' VALUES ' + "('" + "')";
-
         console.log('connected as id ' + connection.threadId);
-        // INSERT INTO entry (song, genre) VALUES ('item', 'item2')
-//Change table name when time to
+ 
         var sql = squel.insert()
             .into('entry')
             .setFieldsRows(arr).toString();
+
         connection.query(sql, function (err, result) {
             connection.release();
             if (err) throw err;
@@ -87,8 +72,55 @@ function Insert(req, res) {
     });
 }
 
+function selectItems(req, res) {
+    pool.getConnection(function (err, connection) {
+        if (err) {
+            res.json({ "code": 100, "status": "Error in connection database" });
+            return;
+        }
+        console.log('connected as id ' + connection.threadId);
+
+        var data = req.body;
+
+        var sql;
+
+        if (data.candidate == "") {
+            sql = squel.select().from('entry').toString();
+        }
+        else
+        {
+            sql = squel.select()
+                .from('entry')
+                .where("Candidate = '" + data.candidate + "'")
+                .toString();
+        }
+
+       
+        connection.query(sql, function (err, rows, fields) {
+            connection.release();
+            if (!err) {
+                res.json(rows);
+            }
+        });
+        connection.on('error', function (err) {
+            res.json({ "code": 100, "status": "Error in connection database" });
+            return;
+        });
+    });
+
+
+}
+
 app.get('/select', function (req, res) {
     select(req, res);
+});
+
+app.get('/selectItems', function (req, res) {
+    selectItems(req, res);
+});
+
+app.post('/selectItems', function (req, res) {
+    selectItems(req, res);
 });
 
 app.post('/insert', function (req, res) {
@@ -99,7 +131,6 @@ app.post('/insert', function (req, res) {
 app.post('/test', function (req, res) {
     test(req, res);
 });
-
 
 //Listen for a connection from browser
 app.listen(3000, function () {

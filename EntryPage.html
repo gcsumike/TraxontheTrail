@@ -1,0 +1,256 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Trax 2020 Entry Form</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="w3.css">
+    <script>
+        // Wait for the page to load first
+        window.onload = function () {
+
+        }
+        $(document).ready(function () {
+            
+        });
+
+        function showOptions() {
+            var x = document.getElementById("entry_div");
+            var y = document.getElementById("admin_div");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                y.style.display = "none";
+                document.getElementById("options").innerHTML = "Admin Options";
+            } else {
+                x.style.display = "none";
+                y.style.display = "block";
+                document.getElementById("options").innerHTML = "Entry Form";
+            }
+
+        }
+
+        function showText(id) {
+            if (id == "lyrics_link") {
+                $("#notes_div").css("display", "none");
+                $("#notes_link").css("background-color", "#103663");
+                $("#review_div").css("display", "none");
+                $("#lyrics_div").css("display", "block");
+                $("#lyrics_link").css("background-color","#07264a");
+            
+            }
+
+        }
+        
+
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Roboto');
+        body {
+            font-family: roboto;
+        }
+        #genre {
+            width: 150px;
+        }
+        #music_type {
+            width: 150px;
+        }
+        #event_type {
+            width: 150px;
+        }
+        #entry_form {
+            background-color: #e7e7e7;
+        }
+        #song {
+            width: 350px;
+        }
+        #performer {
+            width: 350px;
+        }
+        #candidate {
+            width: 150px;
+        }
+        #state {
+            width: 150px;
+        }
+        .text-area {
+            resize: none;
+            width: 100%;
+            height: 400px;
+        }
+        #review {
+            resize: none;
+            width: 100%;
+            height: 400px;
+        }
+        #lyrics {
+            resize: none;
+            width: 300px;
+            height: 400px;
+        }
+
+        .trax-blue {
+            background-color: #103663;
+            color: white;
+        }
+        .tall-text {
+            height: 40px
+        }
+    </style>
+</head>
+<body style="padding: 25px;">
+    <!--
+        Output ids:
+            official
+            song
+            performer
+            genre
+            musicType
+            event_title
+            event_type
+            candidate
+            city
+            state
+            zip
+            notes
+            review
+            lyrics
+    -->
+
+
+    <header id="entry_head" name="entry_head" class="w3-header w3-padding w3-card-2 w3-border-white w3-bottombar trax-blue"><h1>Entry Form</h1></header>
+
+    <div id="entry_bar" name="entry_bar" class="w3-bar w3-border-black w3-card-2 trax-blue">
+        <a id="options" name="options" onclick="showOptions()" class="w3-bar-item w3-button" style="float: right;">Admin Options</a>
+    </div>
+    <div id="entry_div" name="entry_div">
+    <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border" action="/insert" method="post"><!--change action to post directory wanted in server-->
+        <p><h3>Song Info</h3></p>
+        <p style="text-align: left">
+           Song Title:  <input id="song" name="song" type="text" class="w3-text tall-text" />
+           <select id="genre" name="genre" class="w3-select w3-border">
+                <option>Genre</option>
+                <option value="pop/rock">pop/rock</option>
+           </select> <br />
+        </p>
+        <p>
+           Performer: <input id="performer" name="performer" type="text" class="w3-text tall-text" />
+                
+           <select id="music_type" name="music_type" class="w3-select w3-border">
+                 <option>Music Type</option>
+                 <option value="preexisting">preexisting</option>
+            </select> 
+        </p> 
+
+        <p><h3>Event Info</h3></p>
+
+        <p>
+            Event Title: <input id="event_title" name="event_title" type="text" class="w3-text tall-text" />
+            <select id="event_type" name="event_type" class="w3-select w3-border">
+                <option>Event Type</option>
+                <option value="Campaign Rally">Campaign Rally</option>
+            </select>
+            Official: <input id="official" name="official" type="radio" class="w3-radio" />
+        </p>
+        <p>
+           Candidate: <select id="candidate" name="candidate" class="w3-select w3-border">
+                         <option>Candidate</option>
+                         <option value="Hillary Clinton">Hillary Clinton</option>
+                         <option value="Bernie Sanders">Bernie Sanders</option>
+                         <option value="Ted Cruz">Ted Cruz</option>
+                         <option value="Chris Christie">Chris Christie</option>
+                         <option value="Donald Trump">Donald Trump</option>
+                      </select> 
+        </p>
+        <p>
+           State: <select id="state" name="state" class="w3-select w3-border">
+                     <option value="">State</option>
+                      <option value="AL">Alabama</option>
+                      <option value="AK">Alaska</option>
+                      <option value="AZ">Arizona</option>
+                      <option value="AR">Arkansas</option>
+                      <option value="CA">California</option>
+                      <option value="CO">Colorado</option>
+                      <option value="CT">Connecticut</option>
+                      <option value="DE">Delaware</option>
+                      <option value="DC">District Of Columbia</option>
+                      <option value="FL">Florida</option>
+                      <option value="GA">Georgia</option>
+                      <option value="HI">Hawaii</option>
+                      <option value="ID">Idaho</option>
+                      <option value="IL">Illinois</option>
+                      <option value="IN">Indiana</option>
+                      <option value="IA">Iowa</option>
+                      <option value="KS">Kansas</option>
+                      <option value="KY">Kentucky</option>
+                      <option value="LA">Louisiana</option>
+                      <option value="ME">Maine</option>
+                      <option value="MD">Maryland</option>
+                      <option value="MA">Massachusetts</option>
+                      <option value="MI">Michigan</option>
+                      <option value="MN">Minnesota</option>
+                      <option value="MS">Mississippi</option>
+                      <option value="MO">Missouri</option>
+                      <option value="MT">Montana</option>
+                      <option value="NE">Nebraska</option>
+                      <option value="NV">Nevada</option>
+                      <option value="NH">New Hampshire</option>
+                      <option value="NJ">New Jersey</option>
+                      <option value="NM">New Mexico</option>
+                      <option value="NY">New York</option>
+                      <option value="NC">North Carolina</option>
+                      <option value="ND">North Dakota</option>
+                      <option value="OH">Ohio</option>
+                      <option value="OK">Oklahoma</option>
+                      <option value="OR">Oregon</option>
+                      <option value="PA">Pennsylvania</option>
+                      <option value="RI">Rhode Island</option>
+                      <option value="SC">South Carolina</option>
+                      <option value="SD">South Dakota</option>
+                      <option value="TN">Tennessee</option>
+                      <option value="TX">Texas</option>
+                      <option value="UT">Utah</option>
+                      <option value="VT">Vermont</option>
+                      <option value="VA">Virginia</option>
+                      <option value="WA">Washington</option>
+                      <option value="WV">West Virginia</option>
+                      <option value="WI">Wisconsin</option>
+                      <option value="WY">Wyoming</option>
+                  </select>    
+           City: <input id="city" name="city" type="text" class="w3-text tall-text" /> 
+           Zip: <input id="zip" name="zip" type="text" class="w3-text tall-text" /> 
+        </p>
+        <div id="text_bar" name="entry_bar" class="w3-bar w3-border-black w3-card-2 trax-blue">
+            <a id="notes_link" name="options" onclick="showText(this.id)" class="w3-bar-item w3-button" style="background-color: #07264a">Notes</a>
+            <a id="review_link" name="options" onclick="showText(this.id)" class="w3-bar-item w3-button">Review</a>
+            <a id="lyrics_link" name="options" onclick="showText(this.id)" class="w3-bar-item w3-button">Lyrics</a>
+        </div>
+
+        <div id="notes_div" class="w3-padding">
+                <textarea id="notes" name="notes" class="w3-text text-area"></textarea>
+        </div>
+        <div id="review_div" class="w3-padding" style="display: none">
+                <textarea id="review" name="review" class="w3-text text-area"></textarea>
+        </div>
+        <div id="lyrics_div" class="w3-padding" style="display: none">
+                <textarea id="lyrics" name="lyrics" class="w3-text text-area" style="width: 100%"></textarea>
+        </div>
+                       
+            
+        <input id="submit_button" type="submit" class="w3-button trax-blue" value="Submit" />
+    </form>
+    </div>
+    <div id="admin_div" style="display: none">
+        <p>
+        <input type="button" class="w3-button trax-blue" value="Add Candidate"/>
+        <input type="button" class="w3-button trax-blue" value="Add Genre" />
+        <input type="button" class="w3-button trax-blue" value="Add Music Type" />
+        <input type="button" class="w3-button trax-blue" value="Add Event Type" />
+        </p>
+</div>
+    
+    <footer id="entry_foot" name="entry_foot" class="w3-footer w3-card-2 w3-padding trax-blue"><br /> </footer>
+   
+
+</body>
+</html>
