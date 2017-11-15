@@ -37,6 +37,26 @@
             border-radius: 5px;
             border-color: #103663;
         }
+        #entry_info {
+            height: 650px;
+            width: 100%;
+            border-style: solid;
+            border-radius: 5px;
+            border-color: #103663;
+        }
+        #entry_left {
+            width: 70%;
+            height: 100%;
+            background-color: #e7e7e7;
+            float: left;
+        }
+        #entry_right {
+            width: 30%;
+            height: 100%;
+            background-color: #103663;
+            float: right;
+            border: groove;
+        }
         #song {
                 width: 250px;
         }
@@ -126,7 +146,7 @@
 
         var tableData;
         var t1 = null;
-
+        var map;
         var col = {
             height: 650,
             layout: "fitColumns", //fit columns to width of table 
@@ -134,7 +154,7 @@
             paginationSize: 30,
             columns: [ //Define Table Columns
                 { title: "Song Title", field: "Song", minWidth: 300, },
-                { title: "Candidate", field: "Candidate", minWidth: 150, },
+                { title: "Candidate", field: "Candidate", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 150, },
                 { title: "Event Title", field: "Event_Title", minWidth: 600, },
             ],
         }
@@ -143,6 +163,7 @@
 
             $("#map").hide();
             $("#timeline").hide();
+            $("#entry_info").hide();
             $("#table_div").tabulator(col); //set the columns 
             loadData();
             $("#start_date").datepicker();
@@ -159,9 +180,12 @@
                 dataType: 'json',
                 success: function (data) {
                     tableData = data;
+                    
                     $("#table_div").tabulator("setData", data);
                 },
             });
+            
+
         }
 
         function getData() {
@@ -221,6 +245,14 @@
                 LoadTimeline();
             }
         }
+        function showEntry(e, cell) {
+            $("#table_div").hide();
+            $("#timeline").hide();
+            $("#map").hide();
+            $("#entry_info").show();
+            console.log(cell.getData());
+
+        }
 
         function showTable() {
             $("#table_div").show();
@@ -231,7 +263,7 @@
         function initMap() {
             var atlanta = { lat: 33.748995, lng: -84.387982 };
             var macon = { lat: 32.840695, lng: -83.632402 };
-            var map = new google.maps.Map(document.getElementById('map'), {
+            map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 4,
                 center: atlanta
             });
@@ -286,7 +318,7 @@
     </script>
 </head>
 <body>
-    <header class="w3-header"><img id="trax_logo" src="images/trax.svg" /> </header>
+    <!--<header class="w3-header"><img id="trax_logo" src="images/trax.svg" /> </header>-->
     <div class="w3-card-2">
     <div id="trax-nav" name="trax-nav" class="w3-bar w3-border-black">
         <a id="home_link" href="#" class="w3-bar-item w3-button">Home</a>
@@ -423,11 +455,16 @@
 
         <div id="timeline"></div>
 
+        <div id="entry_info">
+            <div id="entry_left" class="w3-container"></div>
+            <div id="entry_right" class="w3-container"></div>
+        </div>
 
         <p style="background-color: ">
             <input type="button" class="w3-button blue-button" onclick="showTable()" value="Search Table" />
             <input type="button" class="w3-button blue-button" onclick="showMap()" value="Search Map" />
             <input type="button" class="w3-button blue-button" onclick="showTimeline()" value="Search Timeline" />
+            <input type="button" class="w3-button blue-button" onclick="showEntry()" value="Temp Show Entry" />
         </p>
     </div>
 
