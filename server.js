@@ -128,8 +128,13 @@ app.post('/insert', function (req, res) {
     res.send("Inserted");
 });
 
-app.post('/test', function (req, res) {
-    test(req, res);
+app.get('/test', function (req, res) {
+    var sql = squel.select().from('song', 's')
+        .from('entry', 'e')
+        .field('s.*')
+        .where('e.song_id = s.song_id').toString();
+    console.log(sql);
+    res.send(sql);
 });
 
 //Listen for a connection from browser

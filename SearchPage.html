@@ -2,11 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title></title>
-    <link rel="stylesheet" href="w3.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <meta property="og:image" content="http://traxonthetrail.com/sites/all/themes/bootstrap/trax/images/trax.png" />
 
+    <title>TraxontheTrail 2020</title>
+
+    <link rel="stylesheet" href="w3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    
 
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -138,27 +140,35 @@
             max-width: 250px;
             max-height: 250px;
         }
-
+        .entry-element {
+            width: 100%;
+            height: 40px;
+            background-color: #FFFFFF;
+            border-style: solid;
+            border-color: #f2f2f2;
+            border-radius: 5px;
+        }
 
     </style>
-           
+       
+<!--This script should be placed into a separate file before project is finished-->
     <script>
-
-        var tableData;
-        var t1 = null;
-        var map;
+        var t1 = null; //Object for the timeline
+        var map;    //Object for the map
+//col, (stands for column), contains information for the tabulator table, defines the columns by title and 
+//what field from the query data will be used to fill the table rows, cellClick call the function showEntry() when a cell is clicked
         var col = {
             height: 650,
             layout: "fitColumns", //fit columns to width of table 
             pagination: "local",
             paginationSize: 30,
             columns: [ //Define Table Columns
-                { title: "Song Title", field: "Song", minWidth: 300, },
+                { title: "Song Title", field: "Song", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 300, },
                 { title: "Candidate", field: "Candidate", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 150, },
                 { title: "Event Title", field: "Event_Title", minWidth: 600, },
             ],
         }
-
+//actions to perform when the html document is ready for view
         $(document).ready(function () {
 
             $("#map").hide();
@@ -171,7 +181,7 @@
         });
 
 
-
+//loadData() makes an ajax request the the server for the data used to populate the table the first time
         function loadData() {
             $.ajax({
                 url: "/select",
@@ -179,15 +189,15 @@
                 async: true,
                 dataType: 'json',
                 success: function (data) {
-                    tableData = data;
-                    
+                    tableData = data;              
                     $("#table_div").tabulator("setData", data);
                 },
             });
             
 
         }
-
+//getData() converts the search form into a json which is then sent to the server by ajax POST
+//the server returns a JSON (data) which is used to populate the table with the query results 
         function getData() {
             var x = ConvertFormToJSON();
 
@@ -203,10 +213,12 @@
                     console.log(data);
                 })
                 .fail(function () {
-                    alert("Failed");
+                    alert("Failed"); 
                 });
 
         }
+
+//ConvertFormToJSON() calls serializeArray on the search form converting it to a array, the array is then converted to a JSON and returned
         function ConvertFormToJSON() {
             var array = $('#search').serializeArray();
             var json = {};
@@ -218,48 +230,69 @@
             return json;
         }
 
-        function test() {
-
-            console.log(tableData);
-
-        }
-
+//showMap() is called by the button (id = map_button), hides all elements except the map
+//if the map has not been created yet, it creates it.
         function showMap() {
             $("#table_div").hide();
             $("#timeline").hide();
             $("#map").show();
+            $("#entry_info").hide();
             if (map == null) {
                 initMap();
             }
             
-
-            google.maps.event.trigger(map, 'resize');
+            google.maps.event.trigger(map, 'resize'); //refresh the map
             
         }
-
+//showTimeline() is called by the button (id = timeline_button), hides all elements except the timeline
+//if the timeline has not been created yet, it creates it.
         function showTimeline() {
             $("#table_div").hide();
             $("#timeline").show();
             $("#map").hide();
+            $("#entry_info").hide();
             if (t1 == null) {
                 LoadTimeline();
             }
         }
+
+//Called when a cell in the table with data that can be displayed is clicked
+//hides all elements except the entry page, populates the entry page with complete data from the table
         function showEntry(e, cell) {
             $("#table_div").hide();
             $("#timeline").hide();
             $("#map").hide();
             $("#entry_info").show();
             console.log(cell.getData());
+            //Got data, format into table, display in entry_left
+            buildEntry(cell.getData());
+
+
 
         }
+        //#############################################
+        function buildEntry(data) {
+            console.log(data);
+            $("#entry_song").html(data.Song);
+            $("#entry_performer").html("<b>Performer/Composer: </b> " + data.Performer);
+            $("#entry_candidate").html("<b>Candidate: </b> " + data.Candidate);
+            $("#entry_genre").html("<b>Genre: </b> " + data.Genre);
+            $("#entry_event_type").html("<b>Type of Event/Media: </b> " + data.Media);
+            $("#entry_music_type").html("<b>Type of Music: </b> " + data.MusicType);
+            $("#entry_date").html("<b>Date: </b> " + data.Date);
+            $("#entry_notes").html("<b>Notes: </b> " + data.Notes);
+        }
 
+
+//showTable() is called by the button (id = table_button), hides all elements except the table
         function showTable() {
             $("#table_div").show();
             $("#timeline").hide();
+            $("#entry_info").hide();
             $("#map").hide();
         }
-
+  
+//initMap() creates the google map object
         function initMap() {
             var atlanta = { lat: 33.748995, lng: -84.387982 };
             var macon = { lat: 32.840695, lng: -83.632402 };
@@ -277,8 +310,8 @@
             });
         }
 
-        //Timeline functions
-        
+
+//LoadTimeline() builds the timeline
         function LoadTimeline() {
             var bandInfos = [
                 Timeline.createBandInfo({
@@ -296,9 +329,11 @@
             bandInfos[1].highlight = true;
 
             t1 = Timeline.create(document.getElementById("timeline"), bandInfos);
-            onResize();
+            onResize(); //refresh the timeline?
         }
-        //resize
+        
+//Resize? Not sure what it does for the timeline, maybe remove?
+//It might refresh the timeline
         var resizeTimerID = null;
         function onResize() {
             if (!t1 == null) {
@@ -311,7 +346,7 @@
             }
         }
 
-        //
+       
 
 
 
@@ -456,15 +491,31 @@
         <div id="timeline"></div>
 
         <div id="entry_info">
-            <div id="entry_left" class="w3-container"></div>
+            <div id="entry_left" class="w3-container w3-padding">
+                <h3 id="entry_song"></h3>
+                <div id="entry_performer" class="entry-element w3-padding w3-card-2"></div>
+                <br />
+                <div id="entry_candidate" class="entry-element w3-padding w3-card-2"></div>
+                <br />
+                <div id="entry_genre" class="entry-element w3-padding w3-card-2"></div>
+                <br />
+                <div id="entry_event_type" class="entry-element w3-padding w3-card-2"></div>
+                <br />
+                <div id="entry_music_type" class="entry-element w3-padding w3-card-2"></div>
+                <br />
+                <div id="entry_date" class="entry-element w3-padding w3-card-2"></div>
+                <br />
+                <div id="entry_notes" class="entry-element w3-padding w3-card-2"></div>
+
+
+            </div>
             <div id="entry_right" class="w3-container"></div>
         </div>
 
-        <p style="background-color: ">
-            <input type="button" class="w3-button blue-button" onclick="showTable()" value="Search Table" />
-            <input type="button" class="w3-button blue-button" onclick="showMap()" value="Search Map" />
-            <input type="button" class="w3-button blue-button" onclick="showTimeline()" value="Search Timeline" />
-            <input type="button" class="w3-button blue-button" onclick="showEntry()" value="Temp Show Entry" />
+        <p>
+            <input id="table_button" type="button" class="w3-button blue-button" onclick="showTable()" value="Search Table" />
+            <input id="map_button" type="button" class="w3-button blue-button" onclick="showMap()" value="Search Map" />
+            <input id="timeline_button" type="button" class="w3-button blue-button" onclick="showTimeline()" value="Search Timeline" />
         </p>
     </div>
 
