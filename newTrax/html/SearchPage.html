@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="w3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <meta property="og:image" content="http://traxonthetrail.com/sites/all/themes/bootstrap/trax/images/trax.png" />
+
+
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.3.1/css/tabulator_simple.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.3.1/js/tabulator.min.js"></script>
+    <script src="http://api.simile-widgets.org/timeline/2.3.1/timeline-api.js?bundle=true" type="text/javascript"></script>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBMQYDqq6jjXNCU7qVmrMgCD8DsHrjSDEI&callback=initMap">
+    </script>
+    
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Roboto');
+        #map {
+            height: 650px;
+            width: 100%;
+            border-style: solid;
+            border-radius: 5px;
+            border-color: #103663;
+        }
+        #timeline {
+            height: 650px;
+            width: 100%;
+            border-style: solid;
+            border-radius: 5px;
+            border-color: #103663;
+        }
+        #entry_info {
+            height: 650px;
+            width: 100%;
+            border-style: solid;
+            border-radius: 5px;
+            border-color: #103663;
+        }
+        #entry_left {
+            width: 70%;
+            height: 100%;
+            background-color: #e7e7e7;
+            float: left;
+        }
+        #entry_right {
+            width: 30%;
+            height: 100%;
+            background-color: #103663;
+            float: right;
+            border: groove;
+        }
+        #song {
+                width: 250px;
+        }
+        #event {
+                width: 250px;
+        }
+        #search_container {
+            width: 20%;
+            height: 100%;
+            background-color: #103663;
+            color: white;
+        }
+        #table_container {
+            width: 80%;
+            height: 100%;
+            background-color: #e7e7e7;
+        }
+        body {
+                padding: 20px;
+                background-image: url("/images/paper-texture.png");
+                font-family: roboto;
+                
+        }
+        .custom-select {
+                width: 200px;
+        }
+        .round-input {
+            border-radius: 5px;
+        }
+        #table_div {
+            border-color: #103663;
+            width: 100%;
+            border-style: solid;
+            border-radius: 5px;
+        }
+        #search_button {
+            background-color: white;
+            color: black;
+        }
+        .blue-button {
+            background-color: #428bca;
+            color: white;
+        }
+        #trax-nav {
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            background-color: #103663;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+            #trax-nav a {
+                color: white;
+            }
+        .date-box {
+            width: 155px;
+        }
+        #info_footer {
+            background-color: #999;
+        }
+        #gc_logo {
+            
+            height: auto;
+            width: auto;
+            max-width: 250px;
+            max-height: 250px;
+        
+        }
+        #candidate {
+            width: 200px;
+        
+        }
+        #trax_logo {
+            display: block;
+            margin: auto;
+            padding: 10px;
+            height: auto;
+            width: auto;
+            max-width: 250px;
+            max-height: 250px;
+        }
+    </style>
+           
+    <script>
+        var tableData;
+        var t1 = null;
+        var map;
+        var col = {
+            height: 650,
+            layout: "fitColumns", //fit columns to width of table 
+            pagination: "local",
+            paginationSize: 30,
+            columns: [ //Define Table Columns
+                { title: "Song Title", field: "song_title", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 300, },
+                { title: "Candidate", field: "candidate_name", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 150, },
+                { title: "Event Title", field: "event_title", minWidth: 600, },
+            ],
+        }
+        $(document).ready(function () {
+            $("#map").hide();
+            $("#timeline").hide();
+            $("#entry_info").hide();
+            $("#table_div").tabulator(col); //set the columns 
+            loadData();
+            $("#start_date").datepicker();
+            $("#end_date").datepicker();
+        });
+        function loadData() {
+            $.ajax({
+                url: "/select",
+                type: "get",
+                async: true,
+                dataType: 'json',
+                success: function (data) {
+                    tableData = data;
+                    
+                    $("#table_div").tabulator("setData", data);
+                },
+            });
+            
+        }
+        function getData() {
+            var x = ConvertFormToJSON();
+            $.ajax({
+                type: "POST",
+                url: "/selectItems",
+                data: x,
+                dataType: "json"
+            })
+                .done(function (data) {
+                    
+                    $("#table_div").tabulator("setData", data);
+                    console.log(data);
+                })
+                .fail(function () {
+                    alert("Failed");
+                });
+        }
+        function ConvertFormToJSON() {
+            var array = $('#search').serializeArray();
+            var json = {};
+            $.each(array, function () {
+                json[this.name] = this.value || '';
+            });
+            return json;
+        }
+        function test() {
+            console.log(tableData);
+        }
+        function showMap() {
+            $("#table_div").hide();
+            $("#timeline").hide();
+            $("#map").show();
+            $("#entry_info").hide();
+            if (map == null) {
+                //initMap();
+                initialize();
+            }
+            
+            google.maps.event.trigger(map, 'resize');
+            
+        }
+        function showTimeline() {
+            $("#table_div").hide();
+            $("#timeline").show();
+            $("#map").hide();
+            $("#entry_info").hide();
+            if (t1 == null) {
+                LoadTimeline();
+            }
+        }
+        function showEntry(e, cell) {
+            $("#table_div").hide();
+            $("#timeline").hide();
+            $("#map").hide();
+            $("#entry_info").show();
+            console.log(cell.getData());
+            //Got data, format into table, display in entry_left
+            buildEntry(cell.getData());
+        }
+        //#############################################
+        function buildEntry(data) {
+            console.log(data);
+            $("#entry_song").html(data.song_title);
+            $("#entry_performer").html("<b>Performer/Composer: </b> " + data.artist);
+            $("#entry_candidate").html("<b>Candidate: </b> " + data.lName);
+            $("#entry_genre").html("<b>Genre: </b> " + data.genre);
+            $("#entry_event_type").html("<b>Type of Event/Media: </b> " + data.media_type);
+            $("#entry_music_type").html("<b>Type of Music: </b> " + data.music_type);
+            $("#entry_date").html("<b>Date: </b> " + data.date);
+            $("#entry_notes").html("<b>Notes: </b> " + data.notes);
+        }
+        function showTable() {
+            $("#table_div").show();
+            $("#timeline").hide();
+            $("#map").hide();
+        }
+        
+        /*function initMap() {
+            var atlanta = { lat: 33.748995, lng: -84.387982 };
+            var macon = { lat: 32.840695, lng: -83.632402 };
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 4,
+                center: atlanta
+            });
+
+            var contentString = '<div id="content"> </div>';
+
+            var infowindow = new google.maps.InfoWindow({
+                content: contentString
+            });
+
+            var marker = new google.maps.Marker({
+                position: atlanta,
+                map: map,
+                title: 'Atlanta'
+            });
+            var marker2 = new google.maps.Marker({
+                position: macon,
+                map: map,
+                title: 'Macon'
+            });
+        
+            marker.addListener('click', function() {
+                infowindow.open(map, marker);
+                $.ajax({
+                    type: 'GET',
+                    url: "http://api.census.gov/data/2010/sf1?key=9d330528a97ef8c6c579a1f491ecf0fc6fb32750&get=P0010001,H00010001,NAME&for=county:*&in=state:01",
+                    success: function (resp) {
+                        var output = "";
+                        output = "<table data-role='table' class='ui-responsive'>"
+                        output += "<tr> <th> County </th>";
+                        output += "<th> Population </th>";
+                        output += "<th> Households </th>";
+                        output += "</tr> <br/>";
+                        for (i = 1; i < resp.length; i++) {
+
+                            var values = resp[i];
+                            var pop = values[0];
+                            var household = values[1];
+                            var name = values[2];
+                    
+                            output += "<tr> <td>" + name + " </td>";
+                            output += "<td>" + pop + " </td>";
+                            output += "<td>" + household + "</td>"
+                            output += "</tr>";
+                        }   
+                        output += "</table>"
+                        document.getElementById("content").innerHTML = output;
+                    },
+                    error: function (responseData, textStatus, errorThrown) {
+                        alert('GET failed.');
+                    }
+                });
+            });
+        }
+        */
+        var atlanta = { lat: 33.748995, lng: -84.387982 };
+        var locations = [
+            ['Atlanta', 33.748995, -84.387982, 'address 1'],
+            ['Macon', 32.840695, -83.632402, 'address 2'],
+        ];
+        
+        function initialize() {
+
+            var myOptions = {
+                center: atlanta,
+                zoom: 4,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            
+            var map = new google.maps.Map(document.getElementById("map"), myOptions);
+
+            setMarkers(map,locations);
+            
+
+        }
+
+
+
+        function setMarkers(map,locations){
+
+            var marker, i
+
+            for (i = 0; i < locations.length; i++){  
+
+                var loan = locations[i][0]
+                var lat = locations[i][1]
+                var long = locations[i][2]
+                var add =  locations[i][3]
+
+                latlngset = new google.maps.LatLng(lat, long);
+
+                var marker = new google.maps.Marker({  
+                    map: map, title: loan , position: latlngset  
+                });
+                map.setCenter(marker.getPosition())
+
+
+                var content = "Loan Number: " + loan +  '</h3>' + " Address: " + add     
+
+                var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                });
+                
+                var contentString = '<div id="content"> </div>';
+            
+
+                marker.addListener('click', function() {
+                    infowindow.open(map, marker);
+                    $.ajax({
+                        type: 'GET',
+                        url: "http://api.census.gov/data/2010/sf1?key=9d330528a97ef8c6c579a1f491ecf0fc6fb32750&get=P0010001,H00010001,NAME&for=zip%20code%20tabulation%20area:99501&in=state:02",
+                        success: function (resp) {
+                            var output = "";
+                            output = "<table data-role='table' class='ui-responsive'>"
+                            output += "<tr> <th> County </th>";
+                            output += "<th> Population </th>";
+                            output += "<th> Households </th>";
+                            output += "</tr> <br/>";
+                            for (i = 1; i < resp.length; i++) {
+
+                                var values = resp[i];
+                                var pop = values[0];
+                                var household = values[1];
+                                var name = values[2];
+                    
+                                output += "<tr> <td>" + name + " </td>";
+                                output += "<td>" + pop + " </td>";
+                                output += "<td>" + household + "</td>"
+                                output += "</tr>";
+                            }   
+                            output += "</table>"
+                            document.getElementById("content").innerHTML = output;
+                        },
+                        error: function (responseData, textStatus, errorThrown) {
+                            alert('GET failed.');
+                        }
+                    });
+                }); 
+
+            }
+         }
+        
+        
+        
+        //Timeline functions
+        
+        function LoadTimeline() {
+            var bandInfos = [
+                Timeline.createBandInfo({
+                    width: "70%",
+                    intervalUnit: Timeline.DateTime.MONTH,
+                    intervalPixels: 100
+                }),
+                Timeline.createBandInfo({
+                    width: "30%",
+                    intervalUnit: Timeline.DateTime.YEAR,
+                    intervalPixels: 200
+                })
+            ];
+            bandInfos[1].syncWith = 0;
+            bandInfos[1].highlight = true;
+            t1 = Timeline.create(document.getElementById("timeline"), bandInfos);
+            onResize();
+        }
+        //resize
+        var resizeTimerID = null;
+        function onResize() {
+            if (!t1 == null) {
+                if (resizeTimerID == null) {
+                    resizeTimerID = window.setTimeout(function () {
+                        resizeTimerID = null;
+                        t1.layout();
+                    }, 500);
+                }
+            }
+        }
+        //
+    </script>
+</head>
+<body>
+    <!--<header class="w3-header"><img id="trax_logo" src="images/trax.svg" /> </header>-->
+    <div class="w3-card-2">
+    <div id="trax-nav" name="trax-nav" class="w3-bar w3-border-black">
+        <a id="home_link" href="#" class="w3-bar-item w3-button">Home</a>
+        <a id="trax_link" href="#" class="w3-bar-item w3-button">Trail Trax</a>
+        <a id="trax2020_link" href="#" class="w3-bar-item w3-button" style="background-color:#07264a">Trail Trax 2020</a>
+        <a id="sound_link" href="#" class="w3-bar-item w3-button">Sound Trax</a>
+        <a id="scholars_link" href="#" class="w3-bar-item w3-button">For Scholars</a>
+        <a id="teachers_link" href="#" class="w3-bar-item w3-button">For Teachers</a>
+        <a id="staff_link" href="#" class="w3-bar-item w3-button">Staff and Contributors</a>
+        <a id="press_link" href="#" class="w3-bar-item w3-button">Press</a>
+        <a id="faq_link" href="#" class="w3-bar-item w3-button">FAQ</a>
+    </div>
+    <div class="w3-display-container ">
+        
+
+    <div id="search_container" name="search_container" class="w3-container w3-padding w3-display_left">
+        <form id="search" name="search">
+            <p>
+                Song Title<br /> 
+                <input id="song" name="song" type="text" class="round-input" />
+            </p>
+            <p>
+                Event Title<br />
+                <input id="event" name="event" type="text" class="round-input" />
+            </p>
+            <p>
+                Genre <br />
+                <select id="genre" name="genre" class="w3-select w3-border custom-select round-input">
+                        <option value="*">-Any-</option>
+                </select>
+            </p>
+            <p>
+                Candidate <br />
+            <select id="candidate" name="candidate" class="w3-select w3-border round-input">
+                    <option value="">-Any-</option>
+                    <option value="Hillary Clinton">Hillary Clinton</option>
+                    <option value="Bernie Sanders">Bernie Sanders</option>
+                    <option value="Ted Cruz">Ted Cruz</option>
+                    <option value="Chris Christie">Chris Christie</option>
+                    <option value="Donald Trump">Donald Trump</option>
+            </select>
+            </p>
+            <p>
+               Political Party <br />
+                <select id="party" name="party" class="w3-select w3-border custom-select round-input">
+                    <option value="">-Any-</option>
+                </select>
+            </p>
+            <p>
+                State <br />
+                <select id="state" name="state" class="w3-select custom-select round-input w3-border">
+                    <option value="">-Any-</option>
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="AR">Arkansas</option>
+                    <option value="CA">California</option>
+                    <option value="CO">Colorado</option>
+                    <option value="CT">Connecticut</option>
+                    <option value="DE">Delaware</option>
+                    <option value="DC">District Of Columbia</option>
+                    <option value="FL">Florida</option>
+                    <option value="GA">Georgia</option>
+                    <option value="HI">Hawaii</option>
+                    <option value="ID">Idaho</option>
+                    <option value="IL">Illinois</option>
+                    <option value="IN">Indiana</option>
+                    <option value="IA">Iowa</option>
+                    <option value="KS">Kansas</option>
+                    <option value="KY">Kentucky</option>
+                    <option value="LA">Louisiana</option>
+                    <option value="ME">Maine</option>
+                    <option value="MD">Maryland</option>
+                    <option value="MA">Massachusetts</option>
+                    <option value="MI">Michigan</option>
+                    <option value="MN">Minnesota</option>
+                    <option value="MS">Mississippi</option>
+                    <option value="MO">Missouri</option>
+                    <option value="MT">Montana</option>
+                    <option value="NE">Nebraska</option>
+                    <option value="NV">Nevada</option>
+                    <option value="NH">New Hampshire</option>
+                    <option value="NJ">New Jersey</option>
+                    <option value="NM">New Mexico</option>
+                    <option value="NY">New York</option>
+                    <option value="NC">North Carolina</option>
+                    <option value="ND">North Dakota</option>
+                    <option value="OH">Ohio</option>
+                    <option value="OK">Oklahoma</option>
+                    <option value="OR">Oregon</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="RI">Rhode Island</option>
+                    <option value="SC">South Carolina</option>
+                    <option value="SD">South Dakota</option>
+                    <option value="TN">Tennessee</option>
+                    <option value="TX">Texas</option>
+                    <option value="UT">Utah</option>
+                    <option value="VT">Vermont</option>
+                    <option value="VA">Virginia</option>
+                    <option value="WA">Washington</option>
+                    <option value="WV">West Virginia</option>
+                    <option value="WI">Wisconsin</option>
+                    <option value="WY">Wyoming</option>
+                </select> 
+            </p>
+            <p>
+                Type of Music <br />
+                <select id="music_type" name="music_type" class="w3-select w3-border custom-select round-input">
+                    <option value="">-Any-</option>
+                </select>
+            </p>
+            <p>
+                Start Date <br/>
+                <input id="start_date" name="start_date" type="text" class="round-input date-box" />
+            </p>
+            <p>
+                End Date <br />
+                <input id="end_date" name="end_date" type="text" class="round-input date-box" />
+            </p>
+            <input id="search_button" name="search_button" type="button" class="w3-button round-input" value="Search" onclick="getData()" />
+            <input id="database_key_button" name="database_key_button" type="button" class="w3-button round-input blue-button" value="Database Key" />
+        </form>
+    </div>
+
+<!--Create Song entry page as a div, hide table div-->
+
+
+
+    <div id="table_container" name="table_container" class="w3-container w3-padding w3-display-right">
+        
+        <div id="table_div" name="table_div"></div>
+
+        <div id="map"></div>
+
+        <div id="timeline"></div>
+
+        <div id="entry_info">
+            <div id="entry_left" class="w3-container"></div>
+            <div id="entry_right" class="w3-container"></div>
+        </div>
+
+        <p style="background-color: ">
+            <input type="button" class="w3-button blue-button" onclick="showTable()" value="Search Table" />
+            <input type="button" class="w3-button blue-button" onclick="showMap()" value="Search Map" />
+            <input type="button" class="w3-button blue-button" onclick="showTimeline()" value="Search Timeline" />
+        </p>
+    </div>
+
+
+
+        
+    </div>
+        <footer id="info_footer" name="info_footer" class="w3-footer w3-card-2 w3-padding"><br /> 
+                <img id="gc_logo" name="gc_logo" src="/images/gc-logo.png" />
+        </footer>
+    </div>
+</body>
+</html>
