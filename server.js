@@ -15,8 +15,9 @@ var pool = mysql.createPool({
     host: "localhost",
     user: "root",
     password: "gcsu",
-    database: "trailtraxmodel",
-    debug: false
+    database: "trailtraxtest",
+    debug: false,
+    multipleStatements: true
 });
 
 function select(req, res) {
@@ -27,7 +28,7 @@ function select(req, res) {
         }
         console.log('connected as id ' + connection.threadId);
 
-        var sql = squel.select().from('entry').toString();
+        var sql = squel.select().from('trailtraxtest.data_table').toString();
 
         connection.query(sql, function (err, rows, fields) {
             connection.release();
@@ -54,10 +55,19 @@ function Insert(req, res) {
         arr.push(data);
 
         console.log('connected as id ' + connection.threadId);
+
+        var sqlString = "squel.select().from(trailtraxtest.data_table)";
+
+        if (data.song_title != "") {
+            sqlString += ".where()";
+        }
  
-        var sql = squel.insert()
-            .into('entry')
-            .setFieldsRows(arr).toString();
+        //var sql = squel.insert()
+        //    .into('entry')
+        //    .setFieldsRows(arr).toString();
+
+
+        var sql = songsql + ';' + eventsql +';' + candidatesql;
 
         connection.query(sql, function (err, result) {
             connection.release();
@@ -83,19 +93,41 @@ function selectItems(req, res) {
         var data = req.body;
 
         var sql;
+        var s_date = "'" + data.start_date + "'";
+        var e_date = "'" + data.end_date + "'";
+        var sqlString = "squel.select().from('trailtraxtest.data_table')";
 
-        if (data.candidate == "") {
-            sql = squel.select().from('entry').toString();
+        if (data.song_title != "") {
+            sqlString += ".where(\"song_title LIKE '%\" + data.song_title + \"%'\" )";
         }
-        else
-        {
-            sql = squel.select()
-                .from('entry')
-                .where("Candidate = '" + data.candidate + "'")
-                .toString();
+        if (data.event_title != "") {
+            sqlString += ".where(\"event_title LIKE '%\" + data.event_title + \"%'\" )";
+        }
+        if (data.genre != "*") {
+            sqlString += ".where(\"genre = '\" + data.genre + \"'\" )";
+        }
+        if (data.candidate_name != "") {
+            sqlString += ".where(\"candidate_name = '\" + data.candidate_name + \"'\" )";
+        }
+        if (data.party != "*") {
+            sqlString += ".where(\"party = '\" + data.party + \"'\" )";
+        }
+        if (data.state != "*") {
+            sqlString += ".where(\"state = '\" + data.state + \"'\" )";
+        }
+        if (data.music_type != "*") {
+            sqlString += ".where(\"music_type = '\" + data.music_type + \"'\" )";
+        }
+        if (data.start_date != "" && data.end_date != "") {
+            
+            sqlString += ".where(\"date >= \" + s_date)";
+            sqlString += ".where(\"date <= \" + e_date)";
         }
 
-       
+        sqlString += ".toString()";
+
+        sql = eval(sqlString);
+
         connection.query(sql, function (err, rows, fields) {
             connection.release();
             if (!err) {
@@ -129,10 +161,7 @@ app.post('/insert', function (req, res) {
 });
 
 app.get('/test', function (req, res) {
-    var sql = squel.select().from('song', 's')
-        .from('entry', 'e')
-        .field('s.*')
-        .where('e.song_id = s.song_id').toString();
+    var sql = squel.from('trailtraxtest.data_table').toString();
     console.log(sql);
     res.send(sql);
 });

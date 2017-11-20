@@ -143,10 +143,12 @@
         .entry-element {
             width: 100%;
             height: 40px;
+            margin: 5px;
             background-color: #FFFFFF;
             border-style: solid;
             border-color: #f2f2f2;
             border-radius: 5px;
+            text-transform: capitalize;
         }
 
     </style>
@@ -155,17 +157,19 @@
     <script>
         var t1 = null; //Object for the timeline
         var map;    //Object for the map
+        var map_markers = [];
+        var map_cords = [];
 //col, (stands for column), contains information for the tabulator table, defines the columns by title and 
-//what field from the query data will be used to fill the table rows, cellClick call the function showEntry() when a cell is clicked
+//what field from the query data will be used to fill the table rows, cellClick calls the function showEntry() when a cell is clicked
         var col = {
             height: 650,
             layout: "fitColumns", //fit columns to width of table 
             pagination: "local",
             paginationSize: 30,
             columns: [ //Define Table Columns
-                { title: "Song Title", field: "Song", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 300, },
-                { title: "Candidate", field: "Candidate", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 150, },
-                { title: "Event Title", field: "Event_Title", minWidth: 600, },
+                { title: "Song Title", field: "song_title", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 300, },
+                { title: "Candidate", field: "candidate_name", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 150, },
+                { title: "Event Title", field: "event_title", minWidth: 600, },
             ],
         }
 //actions to perform when the html document is ready for view
@@ -176,8 +180,8 @@
             $("#entry_info").hide();
             $("#table_div").tabulator(col); //set the columns 
             loadData();
-            $("#start_date").datepicker();
-            $("#end_date").datepicker();
+            $("#start_date").datepicker({ dateFormat: 'yy-mm-dd'});
+            $("#end_date").datepicker({ dateFormat: 'yy-mm-dd' });
         });
 
 
@@ -189,7 +193,8 @@
                 async: true,
                 dataType: 'json',
                 success: function (data) {
-                    tableData = data;              
+                    tableData = data;
+                    getCords(data);
                     $("#table_div").tabulator("setData", data);
                 },
             });
@@ -208,7 +213,8 @@
                 dataType: "json"
             })
                 .done(function (data) {
-                    
+                    deleteMarkers();
+                    getCords(data);
                     $("#table_div").tabulator("setData", data);
                     console.log(data);
                 })
@@ -238,9 +244,9 @@
             $("#map").show();
             $("#entry_info").hide();
             if (map == null) {
-                initMap();
+                initMap();  
             }
-            
+            placeMarkers(map_cords);
             google.maps.event.trigger(map, 'resize'); //refresh the map
             
         }
@@ -270,17 +276,18 @@
 
 
         }
-        //#############################################
+//buildEntry(data) takes the data stored in the table and displays the hidden attributes in a separate view
         function buildEntry(data) {
             console.log(data);
-            $("#entry_song").html(data.Song);
-            $("#entry_performer").html("<b>Performer/Composer: </b> " + data.Performer);
-            $("#entry_candidate").html("<b>Candidate: </b> " + data.Candidate);
-            $("#entry_genre").html("<b>Genre: </b> " + data.Genre);
-            $("#entry_event_type").html("<b>Type of Event/Media: </b> " + data.Media);
-            $("#entry_music_type").html("<b>Type of Music: </b> " + data.MusicType);
-            $("#entry_date").html("<b>Date: </b> " + data.Date);
-            $("#entry_notes").html("<b>Notes: </b> " + data.Notes);
+            $("#entry_song").html(data.song_title);
+            $("#entry_performer").html("<b>Performer/Composer: </b> " + data.artist);
+            $("#entry_candidate").html("<b>Candidate: </b> " + data.candidate_name);
+            $("#entry_genre").html("<b>Genre: </b> " + data.genre);
+            $("#entry_event_title").html("<b>Event Title: </b> " + data.event_title);
+            $("#entry_event_type").html("<b>Type of Event/Media: </b> " + data.event_type);
+            $("#entry_music_type").html("<b>Type of Music: </b> " + data.music_type);
+            $("#entry_date").html("<b>Date: </b> " + data.date);
+            $("#entry_notes").html("<b>Notes: </b> " + data.notes);
         }
 
 
@@ -298,19 +305,74 @@
             var macon = { lat: 32.840695, lng: -83.632402 };
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 4,
-                center: atlanta
-            });
-            var marker = new google.maps.Marker({
-                position: atlanta,
-                map: map
-            });
-            var marker2 = new google.maps.Marker({
-                position: macon,
-                map: map
+                center: { lat: 58, lng: -148},
+                disableDefaultUI: true
             });
         }
+//########################################################
+
+        function getCords(data) {
+            data.forEach(function (row) {
+                if (row.lat != null && row.lng != null) {
+                    map_cords.push({lat: row.lat, lng: row.lng});
+                }
+            });
+
+        }
+//######################################################
+        // Sets the map on all markers in the array.
+        function setMapOnAll(map) {
+            for (var i = 0; i < map_markers.length; i++) {
+                map_markers[i].setMap(map);
+            }
+        }
+
+        // Removes the markers from the map, but keeps them in the array.
+        function clearMarkers() {
+            setMapOnAll(null);
+        }
+
+        // Shows any markers currently in the array.
+        function showMarkers() {
+            setMapOnAll(map);
+        }
+
+        // Adds a marker to the map and push to the array.
+        function addMarker(location) {
+            var marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+            markers.push(marker);
+        }
+
+        // Deletes all markers in the array by removing references to them.
+        function deleteMarkers() {
+            clearMarkers();
+            map_markers = [];
+            map_cords = [];
+        }
+
+//##########################################
 
 
+
+        function placeMarkers(data) {
+            //for each record in data
+            //query zipcode 
+            data.forEach(function (row) {
+                if (row.lat != null && row.lng != null) {
+                    map_markers.push(new google.maps.Marker({
+                        position: { lat: row.lat, lng: row.lng },
+                        map: map
+                    }));
+                }
+            });
+
+
+        }
+
+//########################################################
 //LoadTimeline() builds the timeline
         function LoadTimeline() {
             var bandInfos = [
@@ -373,21 +435,22 @@
         <form id="search" name="search">
             <p>
                 Song Title<br /> 
-                <input id="song" name="song" type="text" class="round-input" />
+                <input id="song_title" name="song_title" type="text" class="round-input" />
             </p>
             <p>
                 Event Title<br />
-                <input id="event" name="event" type="text" class="round-input" />
+                <input id="event_title" name="event_title" type="text" class="round-input" />
             </p>
             <p>
                 Genre <br />
                 <select id="genre" name="genre" class="w3-select w3-border custom-select round-input">
                         <option value="*">-Any-</option>
+                        <option value="patriotic">Patriotic</option>
                 </select>
             </p>
             <p>
                 Candidate <br />
-            <select id="candidate" name="candidate" class="w3-select w3-border round-input">
+            <select id="candidate_name" name="candidate_name" class="w3-select w3-border round-input">
                     <option value="">-Any-</option>
                     <option value="Hillary Clinton">Hillary Clinton</option>
                     <option value="Bernie Sanders">Bernie Sanders</option>
@@ -399,13 +462,15 @@
             <p>
                Political Party <br />
                 <select id="party" name="party" class="w3-select w3-border custom-select round-input">
-                    <option value="">-Any-</option>
+                    <option value="*">-Any-</option>
+                    <option value="democrat">Democrat</option>
+                    <option value="republican">Republican</option>
                 </select>
             </p>
             <p>
                 State <br />
                 <select id="state" name="state" class="w3-select custom-select round-input w3-border">
-                    <option value="">-Any-</option>
+                    <option value="*">-Any-</option>
                     <option value="AL">Alabama</option>
                     <option value="AK">Alaska</option>
                     <option value="AZ">Arizona</option>
@@ -462,7 +527,9 @@
             <p>
                 Type of Music <br />
                 <select id="music_type" name="music_type" class="w3-select w3-border custom-select round-input">
-                    <option value="">-Any-</option>
+                    <option value="*">-Any-</option>
+                    <option value="preexisting">Preexisting</option>
+                    <option value="parody">Parody</option>
                 </select>
             </p>
             <p>
@@ -478,34 +545,26 @@
         </form>
     </div>
 
-<!--Create Song entry page as a div, hide table div-->
-
-
 
     <div id="table_container" name="table_container" class="w3-container w3-padding w3-display-right">
         
         <div id="table_div" name="table_div"></div>
 
-        <div id="map"></div>
+        <div id="map" style="display: none"></div>
 
-        <div id="timeline"></div>
+        <div id="timeline" style="display: none"></div>
 
-        <div id="entry_info">
+        <div id="entry_info" style="display: none">
             <div id="entry_left" class="w3-container w3-padding">
                 <h3 id="entry_song"></h3>
                 <div id="entry_performer" class="entry-element w3-padding w3-card-2"></div>
-                <br />
                 <div id="entry_candidate" class="entry-element w3-padding w3-card-2"></div>
-                <br />
                 <div id="entry_genre" class="entry-element w3-padding w3-card-2"></div>
-                <br />
-                <div id="entry_event_type" class="entry-element w3-padding w3-card-2"></div>
-                <br />
                 <div id="entry_music_type" class="entry-element w3-padding w3-card-2"></div>
-                <br />
+                <div id="entry_event_title" class="entry-element w3-padding w3-card-2"></div>
+                <div id="entry_event_type" class="entry-element w3-padding w3-card-2"></div>           
                 <div id="entry_date" class="entry-element w3-padding w3-card-2"></div>
-                <br />
-                <div id="entry_notes" class="entry-element w3-padding w3-card-2"></div>
+                <div id="entry_notes" class="entry-element w3-padding w3-card-2" style="height: 40%"></div>
 
 
             </div>
@@ -513,9 +572,9 @@
         </div>
 
         <p>
-            <input id="table_button" type="button" class="w3-button blue-button" onclick="showTable()" value="Search Table" />
-            <input id="map_button" type="button" class="w3-button blue-button" onclick="showMap()" value="Search Map" />
-            <input id="timeline_button" type="button" class="w3-button blue-button" onclick="showTimeline()" value="Search Timeline" />
+            <input id="table_button" type="button" class="w3-button blue-button round-input" onclick="showTable()" value="Search Table" />
+            <input id="map_button" type="button" class="w3-button blue-button round-input" onclick="showMap()" value="Search Map" />
+            <input id="timeline_button" type="button" class="w3-button blue-button round-input" onclick="showTimeline()" value="Search Timeline" />
         </p>
     </div>
 

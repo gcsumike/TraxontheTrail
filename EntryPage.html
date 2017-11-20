@@ -17,6 +17,7 @@
         function showOptions() {
             var x = document.getElementById("entry_div");
             var y = document.getElementById("admin_div");
+
             if (x.style.display === "none") {
                 x.style.display = "block";
                 y.style.display = "none";
@@ -31,12 +32,31 @@
 
         function showText(id) {
             if (id == "lyrics_link") {
-                $("#notes_div").css("display", "none");
+                $("#notes_div").hide();
                 $("#notes_link").css("background-color", "#103663");
-                $("#review_div").css("display", "none");
-                $("#lyrics_div").css("display", "block");
+                $("#review_div").hide();
+                $("#review_link").css("background-color", "#103663");
+                $("#lyrics_div").show();
                 $("#lyrics_link").css("background-color","#07264a");
             
+            }
+            if (id == "notes_link") {
+                $("#notes_div").show();
+                $("#notes_link").css("background-color", "#07264a");
+                $("#review_div").hide();
+                $("#review_link").css("background-color", "#103663");
+                $("#lyrics_div").hide();
+                $("#lyrics_link").css("background-color", "#103663");
+
+            }
+            if (id == "review_link") {
+                $("#notes_div").hide();
+                $("#notes_link").css("background-color", "#103663");
+                $("#review_div").show();
+                $("#review_link").css("background-color", "#07264a");
+                $("#lyrics_div").hide();
+                $("#lyrics_link").css("background-color", "#103663");
+
             }
 
         }
@@ -47,13 +67,27 @@
     <style>
         @import url('https://fonts.googleapis.com/css?family=Roboto');
         body {
+            background-image: url("/images/paper-texture.png");
             font-family: roboto;
         }
         #genre {
             width: 150px;
         }
+        h2 {
+            color: black;
+        
+        }
+        td {
+            padding: 10px;
+        }
+        .field-label {
+            text-align: right;
+        }
         #music_type {
             width: 150px;
+        }
+        #event_title {
+            width: 350px;
         }
         #event_type {
             width: 150px;
@@ -61,10 +95,10 @@
         #entry_form {
             background-color: #e7e7e7;
         }
-        #song {
+        #song_title {
             width: 350px;
         }
-        #performer {
+        #artist {
             width: 350px;
         }
         #candidate {
@@ -98,25 +132,27 @@
         }
     </style>
 </head>
-<body style="padding: 25px;">
-    <!--
-        Output ids:
-            official
-            song
-            performer
-            genre
-            musicType
-            event_title
-            event_type
-            candidate
-            city
-            state
-            zip
-            notes
-            review
-            lyrics
-    -->
+<body style="padding-left: 70px; padding-right: 70px; padding-top: 15px; padding-bottom: 15px;">
 
+    <!--
+        song_title
+        genre
+        spotify_link
+        youtube_link
+        soundcloud_link
+        artist
+        music_type
+                                    candidate_name
+                                    party
+                                    bio
+        event_title
+        city
+        notes
+        state
+        zip
+
+    
+        -->
 
     <header id="entry_head" name="entry_head" class="w3-header w3-padding w3-card-2 w3-border-white w3-bottombar trax-blue"><h1>Entry Form</h1></header>
 
@@ -125,101 +161,143 @@
     </div>
     <div id="entry_div" name="entry_div">
     <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border" action="/insert" method="post"><!--change action to post directory wanted in server-->
-        <p><h3>Song Info</h3></p>
-        <p style="text-align: left">
-           Song Title:  <input id="song" name="song" type="text" class="w3-text tall-text" />
-           <select id="genre" name="genre" class="w3-select w3-border">
-                <option>Genre</option>
-                <option value="pop/rock">pop/rock</option>
-           </select> <br />
-        </p>
-        <p>
-           Performer: <input id="performer" name="performer" type="text" class="w3-text tall-text" />
+        <p><h2>Song</h2></p>
+        <table>
+            <tr>
+                <td class="field-label" ><b>Song Title</b>:</td>
+                <td><input id="song_title" name="song_title" type="text" class="w3-text tall-text" /></td>
+            </tr>
+            <tr>
+                <td class="field-label"><b>Genre</b>: </td>
+                <td>
+                    <select id="genre" name="genre" class="w3-select w3-border">
+                        <option value="">Choose</option>
+                        <option value="pop/rock">Pop/Rock</option>
+                    </select> 
+                </td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <b>Type of Music:</b> 
+                </td>
+                <td>
+                    <select id="music_type" name="music_type" class="w3-select w3-border">
+                        <option>Choose</option>
+                        <option value="preexisting">preexisting</option>
+                    </select> 
+
+                </td>
+            </tr>
+            <tr>
+                <td class="field-label"><b>Performer</b>:</td>
+                <td><input id="artist" name="performer" type="text" class="w3-text tall-text" /></td>
+            </tr>
+            <tr>
+                <td>
+
+                </td>
+            </tr>
+
+        </table>
+
+        <p><h2>Event Info</h2></p>
+        <table>
+            <tr>
+                <td class="field-label"><b>Event Title</b>:</td>
+                 <td><input id="event_title" name="event_title" type="text" class="w3-text tall-text" /></td>
+                <td><b>Event Type:</b></td>
+                <td><select id="event_type" name="event_type" class="w3-select w3-border">
+                        <option value="">Choose</option>
+                        <option value="Campaign Rally">Campaign Rally</option>
+                     </select>
+                </td>
+                <td class="field-label"><b>Official</b>: </td>
+                <td><input id="official" name="official" type="radio" class="w3-radio" /></td>
+            </tr>
+            <tr>
+                <td class="field-label"><b>Candidate: </b></td>
+                <td><select id="candidate" name="candidate" class="w3-select w3-border">
+                        <option>Choose</option>
+                        <option value="Hillary Clinton">Hillary Clinton</option>
+                        <option value="Bernie Sanders">Bernie Sanders</option>
+                        <option value="Ted Cruz">Ted Cruz</option>
+                        <option value="Chris Christie">Chris Christie</option>
+                        <option value="Donald Trump">Donald Trump</option>
+                </select> 
+                </td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <b>State: </b>
+                </td>
+                <td>
+                    <select id="state" name="state" class="w3-select w3-border">
+                        <option value="">State</option>
+                        <option value="AL">Alabama</option>
+                        <option value="AK">Alaska</option>
+                        <option value="AZ">Arizona</option>
+                        <option value="AR">Arkansas</option>
+                        <option value="CA">California</option>
+                        <option value="CO">Colorado</option>
+                        <option value="CT">Connecticut</option>
+                        <option value="DE">Delaware</option>
+                        <option value="DC">District Of Columbia</option>
+                        <option value="FL">Florida</option>
+                        <option value="GA">Georgia</option>
+                        <option value="HI">Hawaii</option>
+                        <option value="ID">Idaho</option>
+                        <option value="IL">Illinois</option>
+                        <option value="IN">Indiana</option>
+                        <option value="IA">Iowa</option>
+                        <option value="KS">Kansas</option>
+                        <option value="KY">Kentucky</option>
+                        <option value="LA">Louisiana</option>
+                        <option value="ME">Maine</option>
+                        <option value="MD">Maryland</option>
+                        <option value="MA">Massachusetts</option>
+                        <option value="MI">Michigan</option>
+                        <option value="MN">Minnesota</option>
+                        <option value="MS">Mississippi</option>
+                        <option value="MO">Missouri</option>
+                        <option value="MT">Montana</option>
+                        <option value="NE">Nebraska</option>
+                        <option value="NV">Nevada</option>
+                        <option value="NH">New Hampshire</option>
+                        <option value="NJ">New Jersey</option>
+                        <option value="NM">New Mexico</option>
+                        <option value="NY">New York</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="ND">North Dakota</option>
+                        <option value="OH">Ohio</option>
+                        <option value="OK">Oklahoma</option>
+                        <option value="OR">Oregon</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="RI">Rhode Island</option>
+                        <option value="SC">South Carolina</option>
+                        <option value="SD">South Dakota</option>
+                        <option value="TN">Tennessee</option>
+                        <option value="TX">Texas</option>
+                        <option value="UT">Utah</option>
+                        <option value="VT">Vermont</option>
+                        <option value="VA">Virginia</option>
+                        <option value="WA">Washington</option>
+                        <option value="WV">West Virginia</option>
+                        <option value="WI">Wisconsin</option>
+                        <option value="WY">Wyoming</option>
+                    </select>
+                </td>
                 
-           <select id="music_type" name="music_type" class="w3-select w3-border">
-                 <option>Music Type</option>
-                 <option value="preexisting">preexisting</option>
-            </select> 
-        </p> 
+            </tr>
+            <tr>
+                <td class="field-label"><b>City: </b></td>
+                <td><input id="city" name="city" type="text" class="w3-text tall-text" /></td>
+            </tr>
+            <tr>
+                <td class="field-label"><b>Zip: </b></td>
+                <td><input id="zip" name="zip" type="text" class="w3-text tall-text" /> </td>
+            </tr>
 
-        <p><h3>Event Info</h3></p>
-
-        <p>
-            Event Title: <input id="event_title" name="event_title" type="text" class="w3-text tall-text" />
-            <select id="event_type" name="event_type" class="w3-select w3-border">
-                <option>Event Type</option>
-                <option value="Campaign Rally">Campaign Rally</option>
-            </select>
-            Official: <input id="official" name="official" type="radio" class="w3-radio" />
-        </p>
-        <p>
-           Candidate: <select id="candidate" name="candidate" class="w3-select w3-border">
-                         <option>Candidate</option>
-                         <option value="Hillary Clinton">Hillary Clinton</option>
-                         <option value="Bernie Sanders">Bernie Sanders</option>
-                         <option value="Ted Cruz">Ted Cruz</option>
-                         <option value="Chris Christie">Chris Christie</option>
-                         <option value="Donald Trump">Donald Trump</option>
-                      </select> 
-        </p>
-        <p>
-           State: <select id="state" name="state" class="w3-select w3-border">
-                     <option value="">State</option>
-                      <option value="AL">Alabama</option>
-                      <option value="AK">Alaska</option>
-                      <option value="AZ">Arizona</option>
-                      <option value="AR">Arkansas</option>
-                      <option value="CA">California</option>
-                      <option value="CO">Colorado</option>
-                      <option value="CT">Connecticut</option>
-                      <option value="DE">Delaware</option>
-                      <option value="DC">District Of Columbia</option>
-                      <option value="FL">Florida</option>
-                      <option value="GA">Georgia</option>
-                      <option value="HI">Hawaii</option>
-                      <option value="ID">Idaho</option>
-                      <option value="IL">Illinois</option>
-                      <option value="IN">Indiana</option>
-                      <option value="IA">Iowa</option>
-                      <option value="KS">Kansas</option>
-                      <option value="KY">Kentucky</option>
-                      <option value="LA">Louisiana</option>
-                      <option value="ME">Maine</option>
-                      <option value="MD">Maryland</option>
-                      <option value="MA">Massachusetts</option>
-                      <option value="MI">Michigan</option>
-                      <option value="MN">Minnesota</option>
-                      <option value="MS">Mississippi</option>
-                      <option value="MO">Missouri</option>
-                      <option value="MT">Montana</option>
-                      <option value="NE">Nebraska</option>
-                      <option value="NV">Nevada</option>
-                      <option value="NH">New Hampshire</option>
-                      <option value="NJ">New Jersey</option>
-                      <option value="NM">New Mexico</option>
-                      <option value="NY">New York</option>
-                      <option value="NC">North Carolina</option>
-                      <option value="ND">North Dakota</option>
-                      <option value="OH">Ohio</option>
-                      <option value="OK">Oklahoma</option>
-                      <option value="OR">Oregon</option>
-                      <option value="PA">Pennsylvania</option>
-                      <option value="RI">Rhode Island</option>
-                      <option value="SC">South Carolina</option>
-                      <option value="SD">South Dakota</option>
-                      <option value="TN">Tennessee</option>
-                      <option value="TX">Texas</option>
-                      <option value="UT">Utah</option>
-                      <option value="VT">Vermont</option>
-                      <option value="VA">Virginia</option>
-                      <option value="WA">Washington</option>
-                      <option value="WV">West Virginia</option>
-                      <option value="WI">Wisconsin</option>
-                      <option value="WY">Wyoming</option>
-                  </select>    
-           City: <input id="city" name="city" type="text" class="w3-text tall-text" /> 
-           Zip: <input id="zip" name="zip" type="text" class="w3-text tall-text" /> 
-        </p>
+        </table>
         <div id="text_bar" name="entry_bar" class="w3-bar w3-border-black w3-card-2 trax-blue">
             <a id="notes_link" name="options" onclick="showText(this.id)" class="w3-bar-item w3-button" style="background-color: #07264a">Notes</a>
             <a id="review_link" name="options" onclick="showText(this.id)" class="w3-bar-item w3-button">Review</a>
