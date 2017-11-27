@@ -5,13 +5,17 @@
     <title>Trax 2020 Entry Form</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel="stylesheet" href="w3.css">
+
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+
     <script>
         // Wait for the page to load first
         window.onload = function () {
-
         }
         $(document).ready(function () {
-            
+            $("#date").datepicker({ dateFormat: 'yy-mm-dd' });
         });
 
         function showOptions() {
@@ -60,6 +64,60 @@
             }
 
         }
+//Handle server connect and data validation
+        function validate() {
+            var valid = true;
+            //check song title
+            var x = $("#song_title").val();
+            if (x == "" || x.length > 100) {
+                //highlight textbox
+                $("#song_title").css("background-color", "yellow");
+                //valid = false
+                valid = false;
+            }
+
+
+            x = $("#event_type").val();
+
+
+            if (valid) {
+                window.alert("Entry Added");
+                location.reload();
+            }
+            else {
+                window.alert("Some Fields require your attention.");
+            }
+        }
+
+        function insertData() {
+            var x = ConvertFormToJSON();
+
+            $.ajax({
+                type: "POST",
+                url: "/insert",
+                data: x,
+                dataType: "json"
+            })
+                .done(function (data) {
+                    console.log(data);
+                })
+                .fail(function () {
+                    alert("Failed");
+                });
+
+        }
+
+        //ConvertFormToJSON() calls serializeArray on the search form converting it to a array, the array is then converted to a JSON and returned
+        function ConvertFormToJSON() {
+            var array = $('#entry_form').serializeArray();
+            var json = {};
+
+            $.each(array, function () {
+                json[this.name] = this.value || '';
+            });
+
+            return json;
+        }
         
 
     </script>
@@ -82,6 +140,10 @@
         }
         .field-label {
             text-align: right;
+            width: 130px;
+        }
+        #song_entry_table {
+            table-layout: auto;
         }
         #music_type {
             width: 150px;
@@ -89,8 +151,14 @@
         #event_title {
             width: 350px;
         }
+        #address {
+            width: 350px;
+        }
         #event_type {
             width: 150px;
+        }
+        #city {
+            width: 250px;
         }
         #entry_form {
             background-color: #e7e7e7;
@@ -134,98 +202,169 @@
 </head>
 <body style="padding-left: 70px; padding-right: 70px; padding-top: 15px; padding-bottom: 15px;">
 
-    <!--
-        song_title
-        genre
-        spotify_link
-        youtube_link
-        soundcloud_link
-        artist
-        music_type
-                                    candidate_name
-                                    party
-                                    bio
-        event_title
-        city
-        notes
-        state
-        zip
-
-    
-        -->
-
     <header id="entry_head" name="entry_head" class="w3-header w3-padding w3-card-2 w3-border-white w3-bottombar trax-blue"><h1>Entry Form</h1></header>
 
     <div id="entry_bar" name="entry_bar" class="w3-bar w3-border-black w3-card-2 trax-blue">
         <a id="options" name="options" onclick="showOptions()" class="w3-bar-item w3-button" style="float: right;">Admin Options</a>
     </div>
     <div id="entry_div" name="entry_div">
-    <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border" action="/insert" method="post"><!--change action to post directory wanted in server-->
+
+
+    <form id="entry_form" name="entry_form" class="w3-container w3-padding w3-card-2 w3-border">
         <p><h2>Song</h2></p>
-        <table>
+        <table id="song_entry_table" class="w3-container">
             <tr>
                 <td class="field-label" ><b>Song Title</b>:</td>
-                <td><input id="song_title" name="song_title" type="text" class="w3-text tall-text" /></td>
+                <td><input id="song_title" name="song_title" type="text" class="w3-text tall-text" value=""/></td>
+                <td><span style="color: red">*Required*</span></td>
             </tr>
             <tr>
                 <td class="field-label"><b>Genre</b>: </td>
+
+<!--Fill From Genre Table-->
                 <td>
                     <select id="genre" name="genre" class="w3-select w3-border">
                         <option value="">Choose</option>
-                        <option value="pop/rock">Pop/Rock</option>
+                        <option value="Avant-Garde">Avant-Garde</option>
+                        <option value="Blues">Blues</option>
+                        <option value="Children">Children</option>
+                        <option value="Classical">Classical</option>
+                        <option value="Comedy/Spoken">Comedy/Spoken</option>
+                        <option value="Country">Country</option>
+                        <option value="Easy Listening">Easy Listening</option>
+                        <option value="Electronic">Electronic</option>
+                        <option value="Folk">Folk</option>
+                        <option value="Holiday">Holiday</option>
+                        <option value="International">International</option>
+                        <option value="Jazz">Jazz</option>
+                        <option value="Latin">Latin</option>
+                        <option value="New Age">New Age</option>
+                        <option value="Patriotic">Patriotic</option>
+                        <option value="Pop/Rock">Pop/Rock</option>
+                        <option value="R&B">R&B</option>
+                        <option value="Rap">Rap</option>
+                        <option value="Reggae">Reggae</option>
+                        <option value="Religious">Religious</option>
+                        <option value="Rock">Rock</option>
+                        <option value="Stage & Screen">Stage & Screen</option>
+                        <option value="Vocal">Vocal</option>
                     </select> 
                 </td>
+<!----------------------------------->
+
             </tr>
             <tr>
                 <td class="field-label">
                     <b>Type of Music:</b> 
                 </td>
+
+<!--Fill From Music Type Table-->
                 <td>
                     <select id="music_type" name="music_type" class="w3-select w3-border">
-                        <option>Choose</option>
+                        <option value="">Choose</option>
                         <option value="preexisting">preexisting</option>
+                        <option value="parody">parody</option>
+                        <option value="newly composed">newly composed</option>
                     </select> 
-
                 </td>
+<!---------------------------------------------------->
+
             </tr>
             <tr>
                 <td class="field-label"><b>Performer</b>:</td>
-                <td><input id="artist" name="performer" type="text" class="w3-text tall-text" /></td>
+                <td><input id="artist" name="artist" type="text" class="w3-text tall-text" /></td>
             </tr>
             <tr>
-                <td>
-
+                <td class="field-label">
+                    <b>Youtube Link</b>:
                 </td>
+                <td class="field-label"><input id="youtube_link" name="youtube_link" type="text" class="tall-text" style="width: 350px" /></td>
             </tr>
+            <tr>
+                <td class="field-label">
+                    <b>Spotify Link</b>:
+                </td>
+                <td><input id="spotify_link" name="spotify_link" type="text" class="tall-text" style="width: 350px" /></td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <b>Soundcloud Link</b>:
+                </td>
+                <td><input id="soundcloud_link" name="soundcloud_link" type="text" class="tall-text" style="width: 350px" /></td>
+            </tr>
+            
 
         </table>
-
+        
         <p><h2>Event Info</h2></p>
-        <table>
+        <table class="w3-container">
             <tr>
-                <td class="field-label"><b>Event Title</b>:</td>
-                 <td><input id="event_title" name="event_title" type="text" class="w3-text tall-text" /></td>
-                <td><b>Event Type:</b></td>
-                <td><select id="event_type" name="event_type" class="w3-select w3-border">
+                
+                
+                <td class="field-label"><b>Event Type:</b></td>
+
+<!--Fill From Event Type Table-->
+                <td>
+                    <select id="event_type" name="event_type" class="w3-select w3-border">
                         <option value="">Choose</option>
+                        <option value="Advertisement">Advertisement</option>
+                        <option value="Benefit Dinner">Benefit Dinner</option>
                         <option value="Campaign Rally">Campaign Rally</option>
-                     </select>
+                        <option value="Committee Meeting">Committee Meeting</option>
+                        <option value="Conference">Conference</option>
+                        <option value="Digital News">Digital News</option>
+                        <option value="General">General</option>
+                        <option value="Speech">Speech</option>
+                        <option value="Summit">Campaign Rally</option>
+                        <option value="Town Hall Meeting">Town Hall Meeting</option>
+                        <option value="Youtube">Youtube</option>
+                    </select>
+                    <span style="color: red">  *Required*</span>
                 </td>
+
+
                 <td class="field-label"><b>Official</b>: </td>
-                <td><input id="official" name="official" type="radio" class="w3-radio" /></td>
+                <td><input id="official" name="official" type="checkbox" class="w3-check" value="1" /></td>
             </tr>
+<!----------------------------------------->           
+
+
+<!--Fill from Candidate Table-->
             <tr>
                 <td class="field-label"><b>Candidate: </b></td>
-                <td><select id="candidate" name="candidate" class="w3-select w3-border">
+                <td>
+                    <select id="candidate" name="candidate" class="w3-select w3-border">
                         <option>Choose</option>
-                        <option value="Hillary Clinton">Hillary Clinton</option>
-                        <option value="Bernie Sanders">Bernie Sanders</option>
-                        <option value="Ted Cruz">Ted Cruz</option>
-                        <option value="Chris Christie">Chris Christie</option>
-                        <option value="Donald Trump">Donald Trump</option>
-                </select> 
+                        <option value="2">Hillary Clinton</option>
+                        <option value="2">Bernie Sanders</option>
+                        <option value="2">Ted Cruz</option>
+                        <option value="2">Chris Christie</option>
+                        <option value="2">Donald Trump</option>
+                    </select>
+                    <span style="color: red">  *Required*</span>
                 </td>
             </tr>
+<!-------------------------------------------------------->            
+
+
+ 
+            <tr>
+                <td class="field-label"><b>Event Title</b>:</td>
+                <td><input id="event_title" name="event_title" type="text" class="w3-text tall-text" /></td>
+      
+            </tr>
+            <tr>
+                <td class="field-label"><b>Date:</b></td>
+                <td><input id="date" name="date" type="text" class="tall-text" /></td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <b>Street Address</b>:
+                </td>
+                <td><input id="address" name="address" type="text" class="w3-text tall-text" /></td>
+
+            </tr>
+
             <tr>
                 <td class="field-label">
                     <b>State: </b>
@@ -288,6 +427,7 @@
                 </td>
                 
             </tr>
+            
             <tr>
                 <td class="field-label"><b>City: </b></td>
                 <td><input id="city" name="city" type="text" class="w3-text tall-text" /></td>
@@ -305,26 +445,31 @@
         </div>
 
         <div id="notes_div" class="w3-padding">
-                <textarea id="notes" name="notes" class="w3-text text-area"></textarea>
+                <textarea id="notes" name="notes" class="w3-text text-area" value=""></textarea>
         </div>
         <div id="review_div" class="w3-padding" style="display: none">
-                <textarea id="review" name="review" class="w3-text text-area"></textarea>
+                <textarea id="review" name="review" class="w3-text text-area" value=""></textarea>
         </div>
-        <div id="lyrics_div" class="w3-padding" style="display: none">
+        <div id="lyrics_div" class="w3-padding" style="display: none" value="">
                 <textarea id="lyrics" name="lyrics" class="w3-text text-area" style="width: 100%"></textarea>
         </div>
                        
             
-        <input id="submit_button" type="submit" class="w3-button trax-blue" value="Submit" />
+        <input id="submit_button" type="button" class="w3-button trax-blue" value="Submit" onclick="validate()" />
     </form>
     </div>
     <div id="admin_div" style="display: none">
         <p>
-        <input type="button" class="w3-button trax-blue" value="Add Candidate"/>
+        <input id="add_candidate" type="button" class="w3-button trax-blue" value="Add Candidate"/>
         <input type="button" class="w3-button trax-blue" value="Add Genre" />
         <input type="button" class="w3-button trax-blue" value="Add Music Type" />
         <input type="button" class="w3-button trax-blue" value="Add Event Type" />
         </p>
+
+        <div id="modal" class="w3-modal">
+            <span class="close">&times;</span>
+            <p>Form Here</p>
+        </div>
 </div>
     
     <footer id="entry_foot" name="entry_foot" class="w3-footer w3-card-2 w3-padding trax-blue"><br /> </footer>

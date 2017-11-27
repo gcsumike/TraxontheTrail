@@ -59,10 +59,10 @@
             float: right;
             border: groove;
         }
-        #song {
+        #song_title {
                 width: 250px;
         }
-        #event {
+        #event_title {
                 width: 250px;
         }
         #search_container {
@@ -127,9 +127,8 @@
             max-height: 250px;
         
         }
-        #candidate {
+        #candidate_name {
             width: 200px;
-        
         }
         #trax_logo {
             display: block;
@@ -165,7 +164,7 @@
             height: 650,
             layout: "fitColumns", //fit columns to width of table 
             pagination: "local",
-            paginationSize: 30,
+            paginationSize: 20,
             columns: [ //Define Table Columns
                 { title: "Song Title", field: "song_title", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 300, },
                 { title: "Candidate", field: "candidate_name", cellClick: function (e, cell) { showEntry(e, cell); }, minWidth: 150, },
@@ -278,7 +277,10 @@
         }
 //buildEntry(data) takes the data stored in the table and displays the hidden attributes in a separate view
         function buildEntry(data) {
-            console.log(data);
+            var d = "n/a";
+            if (data.date) {
+                d = data.date.substr(0, 10)
+            }
             $("#entry_song").html(data.song_title);
             $("#entry_performer").html("<b>Performer/Composer: </b> " + data.artist);
             $("#entry_candidate").html("<b>Candidate: </b> " + data.candidate_name);
@@ -286,7 +288,7 @@
             $("#entry_event_title").html("<b>Event Title: </b> " + data.event_title);
             $("#entry_event_type").html("<b>Type of Event/Media: </b> " + data.event_type);
             $("#entry_music_type").html("<b>Type of Music: </b> " + data.music_type);
-            $("#entry_date").html("<b>Date: </b> " + data.date);
+            $("#entry_date").html("<b>Date: </b> " + d);
             $("#entry_notes").html("<b>Notes: </b> " + data.notes);
         }
 
@@ -445,7 +447,29 @@
                 Genre <br />
                 <select id="genre" name="genre" class="w3-select w3-border custom-select round-input">
                         <option value="*">-Any-</option>
-                        <option value="patriotic">Patriotic</option>
+                    <option value="Avant-Garde">Avant-Garde</option>
+                    <option value="Blues">Blues</option>
+                    <option value="Children">Children</option>
+                    <option value="Classical">Classical</option>
+                    <option value="Comedy/Spoken">Comedy/Spoken</option>
+                    <option value="Country">Country</option>
+                    <option value="Easy Listening">Easy Listening</option>
+                    <option value="Electronic">Electronic</option>
+                    <option value="Folk">Folk</option>
+                    <option value="Holiday">Holiday</option>
+                    <option value="International">International</option>
+                    <option value="Jazz">Jazz</option>
+                    <option value="Latin">Latin</option>
+                    <option value="New Age">New Age</option>
+                    <option value="Patriotic">Patriotic</option>
+                    <option value="Pop/Rock">Pop/Rock</option>
+                    <option value="R&B">R&B</option>
+                    <option value="Rap">Rap</option>
+                    <option value="Reggae">Reggae</option>
+                    <option value="Religious">Religious</option>
+                    <option value="Rock">Rock</option>
+                    <option value="Stage & Screen">Stage & Screen</option>
+                    <option value="Vocal">Vocal</option>
                 </select>
             </p>
             <p>
@@ -541,7 +565,7 @@
                 <input id="end_date" name="end_date" type="text" class="round-input date-box" />
             </p>
             <input id="search_button" name="search_button" type="button" class="w3-button round-input" value="Search" onclick="getData()" />
-            <input id="database_key_button" name="database_key_button" type="button" class="w3-button round-input blue-button" value="Database Key" />
+            <input id="database_key_button" name="database_key_button" type="button" class="w3-button round-input blue-button" disabled="disabled" value="Database Key" />
         </form>
     </div>
 
@@ -574,7 +598,7 @@
         <p>
             <input id="table_button" type="button" class="w3-button blue-button round-input" onclick="showTable()" value="Search Table" />
             <input id="map_button" type="button" class="w3-button blue-button round-input" onclick="showMap()" value="Search Map" />
-            <input id="timeline_button" type="button" class="w3-button blue-button round-input" onclick="showTimeline()" value="Search Timeline" />
+            <input id="timeline_button" type="button" class="w3-button blue-button round-input" disabled="disabled" onclick="showTimeline()" value="Search Timeline" />
         </p>
     </div>
 

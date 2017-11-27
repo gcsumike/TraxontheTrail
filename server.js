@@ -17,7 +17,7 @@ var pool = mysql.createPool({
     password: "gcsu",
     database: "trailtraxtest",
     debug: false,
-    multipleStatements: true
+    mutipleStatements: true
 });
 
 function select(req, res) {
@@ -33,15 +33,18 @@ function select(req, res) {
         connection.query(sql, function (err, rows, fields) {
             connection.release();
             if (!err) {
+                connection.removeAllListeners(['error']);
                 res.json(rows);
             }
         });
-        connection.on('error', function (err) {
+        connection.once('error', function (err) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         });
     });
 }
+
+
 
 function Insert(req, res) {
     pool.getConnection(function (err, connection) {
@@ -56,25 +59,76 @@ function Insert(req, res) {
 
         console.log('connected as id ' + connection.threadId);
 
-        var sqlString = "squel.select().from(trailtraxtest.data_table)";
+        var songSql;
+        var eventSql;
+        var candidateSql;
 
-        if (data.song_title != "") {
-            sqlString += ".where()";
-        }
- 
-        //var sql = squel.insert()
-        //    .into('entry')
-        //    .setFieldsRows(arr).toString();
+        songSql = squel.insert().into("song")
+            .setFields({
+                song_title: data.song_title,
+                artist: data.artist,
+                spotify_link: data.spotify_link,
+                soundcloud_link: data.soundcloud_link,
+                youtube_link: data.youtube_link,
+                genre: data.genre,
+                lyrics: data.lyrics,
+                music_type: data.music_type
+            })
+            .toString();
+        eventSql = squel.insert().into("event")
+            .setFields({
+                event_title: data.event_title,
+                state: data.state,
+                city: data.city,
+                zip: data.zip,
+                event_type: data.event_type,
+                date: data.date
+            })
+            .toString();
 
+        var songId;
+        var eventId;
+        connection.query(songSql, function (err, result) {
+            songId = result.insertId;
+            console.log(songId);
+            eventId;
+            console.log("Song Result: " + result);
+            //do a subquery
+            connection.query(eventSql, function (err, result) {
+                eventId = result.insertId;
+                console.log(eventId);
+                console.log("Event Result: " + result);
+                var off;
 
-        var sql = songsql + ';' + eventsql +';' + candidatesql;
+                if (data.official == null) {
+                    off = 0;
+                }
+                else
+                    off = 1;
 
-        connection.query(sql, function (err, result) {
+                var entrySql = squel.insert().into("entry")
+                    .setFields({
+                        song: songId,
+                        candidate: data.candidate,
+                        event: eventId,
+                        review_info: data.review,
+                        official: off
+                    })
+                    .toString();
+                console.log(entrySql);
+
+                connection.query(entrySql, function (err, result) {
+                    console.log("Testing import into entry");
+                    console.log("Entry Result: " + result);
+                });
+            });
+            
+
             connection.release();
             if (err) throw err;
             console.log("Record inserted");
         });
-        connection.on('error', function (err) {
+        connection.once('error', function (err) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         });
@@ -131,15 +185,17 @@ function selectItems(req, res) {
         connection.query(sql, function (err, rows, fields) {
             connection.release();
             if (!err) {
-                res.json(rows);
+                res.json(rows); 
             }
         });
-        connection.on('error', function (err) {
+        connection.once('error', function (err) {
             res.json({ "code": 100, "status": "Error in connection database" });
             return;
         });
+        
+        
     });
-
+    
 
 }
 
@@ -157,13 +213,6 @@ app.post('/selectItems', function (req, res) {
 
 app.post('/insert', function (req, res) {
     Insert(req, res);
-    res.send("Inserted");
-});
-
-app.get('/test', function (req, res) {
-    var sql = squel.from('trailtraxtest.data_table').toString();
-    console.log(sql);
-    res.send(sql);
 });
 
 //Listen for a connection from browser
